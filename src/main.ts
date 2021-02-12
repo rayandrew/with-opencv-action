@@ -89,10 +89,8 @@ async function run() {
     }
 
     if (cached) {
-      await exec.exec(`ls ${cachedDir}`)
-      await exec.exec(`ls ${cachedDir}/build`)
       // Installation is fast and can be done from the cached built binaries
-      await exec.exec(`sudo make -C ${cachedDir}/build install`)
+      await exec.exec(`sudo make -C ${cachedDir}/opencv/build install`)
     } else {
       core.startGroup('Download source code')
 

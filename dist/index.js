@@ -112,10 +112,8 @@ function run() {
                 core.endGroup();
             }
             if (cached) {
-                yield exec.exec(`ls ${cachedDir}`);
-                yield exec.exec(`ls ${cachedDir}/build`);
                 // Installation is fast and can be done from the cached built binaries
-                yield exec.exec(`sudo make -C ${cachedDir}/build install`);
+                yield exec.exec(`sudo make -C ${cachedDir}/opencv/build install`);
             }
             else {
                 core.startGroup('Download source code');
