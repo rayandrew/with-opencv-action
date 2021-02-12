@@ -112,19 +112,21 @@ function run() {
                 core.endGroup();
             }
             if (cached) {
+                core.startGroup('Install from cache');
                 // Installation is fast and can be done from the cached built binaries
                 yield exec.exec(`sudo make -C ${cachedDir}/opencv/build install`);
+                core.endGroup();
             }
             else {
                 core.startGroup('Download source code');
                 yield exec.exec(`mkdir -p ${cachedDir}`);
-                yield exec.exec(`git clone https://github.com/opencv/opencv.git --branch ${version} --depth 1`);
+                yield exec.exec(`git clone https://github.com/opencv/opencv.git --branch ${version} --depth 1 ${cachedDir}/opencv`);
                 if (extraModules) {
-                    yield exec.exec(`git clone https://github.com/opencv/opencv_contrib.git --branch ${version} --depth 1`);
+                    yield exec.exec(`git clone https://github.com/opencv/opencv_contrib.git --branch ${version} --depth 1 ${cachedDir}/opencv_contrib`);
                 }
                 core.endGroup();
                 /* eslint-disable prefer-template */
-                const cmakeCmd = 'cmake -S opencv -B opencv/build ' +
+                const cmakeCmd = `cmake -S ${cachedDir}/opencv -B ${cachedDir}/opencv/build ` +
                     ' -D CMAKE_CXX_COMPILER=' +
                     CMAKE_CXX_COMPILER +
                     ' -D CMAKE_INSTALL_PREFIX=' +
@@ -152,7 +154,7 @@ function run() {
                     ' -D OPENCV_GENERATE_PKGCONFIG=' +
                     GENERATE_PKGCONFIG +
                     (extraModules
-                        ? ` -D OPENCV_EXTRA_MODULES_PATH=./opencv_contrib/modules `
+                        ? ` -D OPENCV_EXTRA_MODULES_PATH=${cachedDir}/opencv_contrib/modules `
                         : '');
                 /* eslint-enable prefer-template */
                 /* eslint-disable no-console */
@@ -160,12 +162,8 @@ function run() {
                 /* eslint-enable no-console */
                 core.startGroup('Compile and install');
                 yield exec.exec(cmakeCmd);
-                yield exec.exec('make -j10 -C opencv/build');
-                yield exec.exec('sudo make -C opencv/build install');
-                core.endGroup();
-                core.startGroup('Cleanup');
-                yield exec.exec(`mv opencv ${cachedDir}`);
-                yield exec.exec('rm -rf opencv_contrib');
+                yield exec.exec(`make -j10 -C ${cachedDir}/opencv/build`);
+                yield exec.exec(`sudo make -C ${cachedDir}/opencv/build install`);
                 core.endGroup();
             }
         }

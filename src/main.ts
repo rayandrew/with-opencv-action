@@ -89,27 +89,29 @@ async function run() {
     }
 
     if (cached) {
+      core.startGroup('Install from cache')
       // Installation is fast and can be done from the cached built binaries
       await exec.exec(`sudo make -C ${cachedDir}/opencv/build install`)
+      core.endGroup()
     } else {
       core.startGroup('Download source code')
 
       await exec.exec(`mkdir -p ${cachedDir}`)
 
       await exec.exec(
-        `git clone https://github.com/opencv/opencv.git --branch ${version} --depth 1`
+        `git clone https://github.com/opencv/opencv.git --branch ${version} --depth 1 ${cachedDir}/opencv`
       )
 
       if (extraModules) {
         await exec.exec(
-          `git clone https://github.com/opencv/opencv_contrib.git --branch ${version} --depth 1`
+          `git clone https://github.com/opencv/opencv_contrib.git --branch ${version} --depth 1 ${cachedDir}/opencv_contrib`
         )
       }
       core.endGroup()
 
       /* eslint-disable prefer-template */
       const cmakeCmd =
-        'cmake -S opencv -B opencv/build ' +
+        `cmake -S ${cachedDir}/opencv -B ${cachedDir}/opencv/build ` +
         ' -D CMAKE_CXX_COMPILER=' +
         CMAKE_CXX_COMPILER +
         ' -D CMAKE_INSTALL_PREFIX=' +
@@ -137,7 +139,7 @@ async function run() {
         ' -D OPENCV_GENERATE_PKGCONFIG=' +
         GENERATE_PKGCONFIG +
         (extraModules
-          ? ` -D OPENCV_EXTRA_MODULES_PATH=./opencv_contrib/modules `
+          ? ` -D OPENCV_EXTRA_MODULES_PATH=${cachedDir}/opencv_contrib/modules `
           : '')
       /* eslint-enable prefer-template */
 
@@ -147,13 +149,8 @@ async function run() {
 
       core.startGroup('Compile and install')
       await exec.exec(cmakeCmd)
-      await exec.exec('make -j10 -C opencv/build')
-      await exec.exec('sudo make -C opencv/build install')
-      core.endGroup()
-
-      core.startGroup('Cleanup')
-      await exec.exec(`mv opencv ${cachedDir}`)
-      await exec.exec('rm -rf opencv_contrib')
+      await exec.exec(`make -j10 -C ${cachedDir}/opencv/build`)
+      await exec.exec(`sudo make -C ${cachedDir}/opencv/build install`)
       core.endGroup()
     }
   } catch (error) {
