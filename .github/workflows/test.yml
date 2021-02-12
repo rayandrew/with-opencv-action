@@ -1,11 +1,10 @@
 name: "build-test"
-on: # rebuild any PRs and main branch changes
+on:
   pull_request:
   push:
     branches:
-      - master
+      - main
       - 'releases/*'
-
 jobs:
   build: # make sure build/ci work properly
     runs-on: ubuntu-latest
@@ -14,12 +13,19 @@ jobs:
     - run: |
         npm install
         npm run all
-  test: # make sure the action works on a clean machine without building
+  test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
+    - name: Cache OpenCV
+      id: opencv-cache
+      uses: actions/cache@v2
+      with:
+        path: ./opencv-install
+        key: ${{ runner.os }}-opencv-cache
     - uses: ./
       with:
+        dir: ./opencv-install
         opencv-version: '4.0.0'
     - run: |
         cmake -C tests/basic_test
