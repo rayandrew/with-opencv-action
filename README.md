@@ -29,4 +29,5 @@ See `action.yml`
   with:  
     dir: ./opencv-install
     cached: ${{ steps.opencv-cache.outputs.cache-hit }}
+    opencv-version: '4.0.0'
 ~~~~
