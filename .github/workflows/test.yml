@@ -21,13 +21,13 @@ jobs:
       id: opencv-cache
       uses: actions/cache@v2
       with:
-        path: ./opencv-install
+        path: opencv-install
         key: ${{ runner.os }}-opencv-cache
     - name: Install OpenCV
       uses: ./
       with:
         cached: ${{ steps.opencv-cache.outputs.cache-hit }}
-        dir: ./opencv-install
+        dir: opencv-install
         opencv-version: '4.0.0'
     - name: Run tests
       run: |
