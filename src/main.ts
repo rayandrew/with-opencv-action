@@ -29,7 +29,7 @@ import * as exec from '@actions/exec'
 
 async function run() {
   try {
-    const installDir = `./${core.getInput('dir')}`
+    const cachedDir = core.getInput('dir')
 
     const requestedVersion = core.getInput('opencv-version') || '4.0.0'
     const useMasterBranch =
@@ -88,10 +88,13 @@ async function run() {
       core.endGroup()
     }
 
-    if (!cached) {
+    if (cached) {
+      // Installation is fast and can be done from the cached built binaries
+      await exec.exec(`sudo make -C ${cachedDir}/build install`)
+    } else {
       core.startGroup('Download source code')
 
-      await exec.exec(`mkdir -p ${installDir}`)
+      await exec.exec(`mkdir -p ${cachedDir}`)
 
       await exec.exec(
         `git clone https://github.com/opencv/opencv.git --branch ${version} --depth 1`
@@ -145,18 +148,14 @@ async function run() {
       core.startGroup('Compile and install')
       await exec.exec(cmakeCmd)
       await exec.exec('make -j10 -C opencv/build')
-      await exec.exec(`mv opencv/build ${installDir}`)
-      // await exec.exec('sudo make -C opencv/build install')
+      await exec.exec('sudo make -C opencv/build install')
       core.endGroup()
 
       core.startGroup('Cleanup')
-      await exec.exec('rm -rf opencv')
+      await exec.exec(`mv opencv ${cachedDir}`)
       await exec.exec('rm -rf opencv_contrib')
       core.endGroup()
     }
-
-    // Installation is fast and can be done from the cached built binaries
-    await exec.exec(`sudo make -C ${installDir} install`)
   } catch (error) {
     core.setFailed(error.message)
   }
