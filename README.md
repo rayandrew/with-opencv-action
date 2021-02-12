@@ -14,9 +14,11 @@ All credits should belong to @florianblume and @Dovyski
 
 See `action.yml`
 
+## Example
+
 ~~~~
 - name: Cache OpenCV
-  id: copencv-cache
+  id: opencv-cache
   uses: actions/cache@v2
   with:
     path: ./opencv-install

@@ -23,10 +23,13 @@ jobs:
       with:
         path: ./opencv-install
         key: ${{ runner.os }}-opencv-cache
-    - uses: ./
+    - name: Install OpenCV
+      uses: ./
       with:
+        cached: ${{ steps.opencv-cache.outputs.cache-hit }}
         dir: ./opencv-install
         opencv-version: '4.0.0'
-    - run: |
+    - name: Run tests
+      run: |
         cmake -Htests/basic_test -Btest -DCMAKE_BUILD_TYPE=Release
         cmake --build test --config Release
