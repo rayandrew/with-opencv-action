@@ -17,9 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - run: |
-        npm install
-        npm run all
     - name: Cache OpenCV
       id: opencv-cache
       uses: actions/cache@v2
