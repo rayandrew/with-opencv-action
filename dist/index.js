@@ -66,7 +66,7 @@ const exec = __importStar(__nccwpck_require__(514));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const installDir = `./${core.getInput('dir')}`;
+            const cachedDir = core.getInput('dir');
             const requestedVersion = core.getInput('opencv-version') || '4.0.0';
             const useMasterBranch = requestedVersion == 'master' ||
                 requestedVersion == 'dev' ||
@@ -111,9 +111,13 @@ function run() {
                     'x264 v4l-utils ');
                 core.endGroup();
             }
-            if (!cached) {
+            if (cached) {
+                // Installation is fast and can be done from the cached built binaries
+                yield exec.exec(`sudo make -C ${cachedDir}/build install`);
+            }
+            else {
                 core.startGroup('Download source code');
-                yield exec.exec(`mkdir -p ${installDir}`);
+                yield exec.exec(`mkdir -p ${cachedDir}`);
                 yield exec.exec(`git clone https://github.com/opencv/opencv.git --branch ${version} --depth 1`);
                 if (extraModules) {
                     yield exec.exec(`git clone https://github.com/opencv/opencv_contrib.git --branch ${version} --depth 1`);
@@ -157,16 +161,13 @@ function run() {
                 core.startGroup('Compile and install');
                 yield exec.exec(cmakeCmd);
                 yield exec.exec('make -j10 -C opencv/build');
-                yield exec.exec(`mv opencv/build ${installDir}`);
-                // await exec.exec('sudo make -C opencv/build install')
+                yield exec.exec('sudo make -C opencv/build install');
                 core.endGroup();
                 core.startGroup('Cleanup');
-                yield exec.exec('rm -rf opencv');
+                yield exec.exec(`mv opencv ${cachedDir}`);
                 yield exec.exec('rm -rf opencv_contrib');
                 core.endGroup();
             }
-            // Installation is fast and can be done from the cached built binaries
-            yield exec.exec(`sudo make -C ${installDir} install`);
         }
         catch (error) {
             core.setFailed(error.message);
