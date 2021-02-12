@@ -11,9 +11,6 @@ inputs:
   cached:
     description: "Whether to build OpenCV completely again or just run make install from previously built binaries."
     default: false
-  install-deps:
-    description: 'Whether or not to install OpenCV dependencies on Linux'
-    default: true
   opencv-version:
     description: 'OpenCV version to be installed.'
     required: true

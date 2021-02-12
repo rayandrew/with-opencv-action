@@ -104,6 +104,7 @@ async function run() {
       }
       core.endGroup()
 
+      /* eslint-disable prefer-template */
       const cmakeCmd =
         'cmake -S opencv -B opencv/build ' +
         ' -D CMAKE_CXX_COMPILER=' +
@@ -135,8 +136,11 @@ async function run() {
         (extraModules
           ? ` -D OPENCV_EXTRA_MODULES_PATH=./opencv_contrib/modules `
           : '')
+      /* eslint-enable prefer-template */
 
+      /* eslint-disable no-console */
       console.log(`Compile cmd: ${cmakeCmd}`)
+      /* eslint-enable no-console */
 
       core.startGroup('Compile and install')
       await exec.exec(cmakeCmd)
@@ -150,7 +154,7 @@ async function run() {
       await exec.exec('rm -rf opencv_contrib')
       core.endGroup()
     }
-  
+
     // Installation is fast and can be done from the cached built binaries
     await exec.exec(`sudo make -C ${installDir} install`)
   } catch (error) {

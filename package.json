@@ -5,7 +5,7 @@
   "description": "Cacheable OpenCV installation on your Github Actions",
   "main": "lib/main.js",
   "scripts": {
-     "build": "tsc",
+    "build": "tsc",
     "format": "prettier --write **/*.ts",
     "format-check": "prettier --check **/*.ts",
     "lint": "eslint src/**/*.ts",
