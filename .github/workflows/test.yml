@@ -19,6 +19,8 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - uses: ./
+      with:
+        opencv-version: '4.0.0'
     - run: |
         cmake -C tests/basic_test
         make -C tests/basic_test
