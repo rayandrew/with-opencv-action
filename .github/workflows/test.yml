@@ -28,5 +28,5 @@ jobs:
         dir: ./opencv-install
         opencv-version: '4.0.0'
     - run: |
-        cmake -C tests/basic_test
-        make -C tests/basic_test
+        cmake -Htests/basic_test -Btest -DCMAKE_BUILD_TYPE=Release
+        cmake --build test --config Release
